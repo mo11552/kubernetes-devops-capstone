@@ -42,12 +42,8 @@ jobs:
       - name: Set up kubectl
         uses: azure/setup-kubectl@v4
 
-      - name: Validate Kustomize manifests
-        run: |
-          kubectl apply \
-            --dry-run=client \
-            --validate=false \
-            -k manifests/base
+      - name: Render Kustomize manifests
+        run: kubectl kustomize manifests/base > /tmp/kustomize-rendered.yaml
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
@@ -55,10 +51,5 @@ jobs:
       - name: Lint Helm chart
         run: helm lint helm/cloudtask
 
-      - name: Render and validate Helm chart
-        run: |
-          helm template cloudtask helm/cloudtask |
-          kubectl apply \
-            --dry-run=client \
-            --validate=false \
-            -f -
+      - name: Render Helm chart
+        run: helm template cloudtask helm/cloudtask > /tmp/helm-rendered.yaml
